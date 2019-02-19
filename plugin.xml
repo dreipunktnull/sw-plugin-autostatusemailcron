@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../engine/Shopware/Components/Plugin/schema/plugin.xsd">
+    <label>Automatic status emails by cronjob</label>
+    <label lang="de">Automatische Status E-Mails per Cronjob</label>
+    <version>1.0.0</version>
+    <copyright>(c) 3.0</copyright>
+    <link>https://dreipunktnull.com</link>
+    <author>Björn Fromme, 3.0</author>
+    <compatibility minVersion="5.5.0" />
+    <changelog version="1.0.0">
+        <changes>Initial plugin release</changes>
+        <changes lang="de">Erster Plugin Release</changes>
+    </changelog>
+</plugin>
