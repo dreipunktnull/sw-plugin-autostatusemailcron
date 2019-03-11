@@ -4,7 +4,7 @@
 
     <cronjob>
         <name>Process status emails</name>
-        <action>Shopware_CronJob_ProcessStatusEmails</action>
+        <action>Shopware_CronJob_DpnCronJobProcessStatusEmails</action>
         <active>true</active>
         <interval>900</interval>
         <disableOnError>true</disableOnError>

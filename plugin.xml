@@ -12,4 +12,7 @@
         <changes>Initial plugin release</changes>
         <changes lang="de">Erster Plugin Release</changes>
     </changelog>
+    <requiredPlugins>
+        <requiredPlugin pluginName="Cron" />
+    </requiredPlugins>
 </plugin>

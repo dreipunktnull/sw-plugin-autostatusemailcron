@@ -56,7 +56,8 @@ class DpnCronStatusEmail extends Plugin
         $crudService = $this->container->get('shopware_attribute.crud_service');
 
         try {
-            $crudService->delete('s_order_attributes', 'oneoff_costs_price');
+            $crudService->delete('s_order_attributes', 'dpn_prev_status_order');
+            $crudService->delete('s_order_attributes', 'dpn_prev_status_payment');
             $this->updateMetadataCacheAndModels();
         }
         catch (\Exception $e) {
