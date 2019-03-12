@@ -44,11 +44,14 @@ class ExtendOrderSubscriber implements SubscriberInterface
     {
         /** @var \Shopware_Controllers_Backend_Article $controller */
         $controller = $args->getSubject();
-        $controller->View()->addTemplateDir($this->pluginDirectory . '/Resources/views/');
+        /** @var \Enlight_View_Default $view */
+        $view = $controller->View();
+
+        $view->addTemplateDir($this->pluginDirectory . '/Resources/views/');
 
         if ($controller->Request()->getActionName() === 'load') {
-            $controller->View()->extendsTemplate('backend/dpn_cron_status_email/order/controller/list.js');
-            $controller->View()->extendsTemplate('backend/dpn_cron_status_email/order/model/mail.js');
+            $view->extendsTemplate('backend/dpn_cron_status_email/order/controller/list.js');
+            $view->extendsTemplate('backend/dpn_cron_status_email/order/model/mail.js');
         }
     }
 

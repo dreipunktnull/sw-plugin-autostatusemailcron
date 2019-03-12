@@ -23,23 +23,40 @@ class DpnCronStatusEmail extends Plugin
     public function install(InstallContext $context)
     {
         /** @var CrudService $service */
-        $crudService = $this->container->get('shopware_attribute.crud_service');
+        $crudService = $this->container
+            ->get('shopware_attribute.crud_service');
 
         try {
-            $crudService->update('s_order_attributes', 'dpn_prev_status_order', 'integer', [
-                'displayInBackend' => false,
-                'position' => 300,
-                'custom' => false,
-                'translatable' => false,
-                'defaultValue' => 0,
-            ]);
-            $crudService->update('s_order_attributes', 'dpn_prev_status_payment', 'integer', [
-                'displayInBackend' => false,
-                'position' => 310,
-                'custom' => false,
-                'translatable' => false,
-                'defaultValue' => 0,
-            ]);
+            $crudService->update(
+                's_order_attributes',
+                'dpn_prev_status_order',
+                'integer',
+                [
+                    'displayInBackend' => false,
+                    'position' => 300,
+                    'custom' => false,
+                    'translatable' => false,
+                    'defaultValue' => 0,
+                ],
+                null,
+                false,
+                0
+            );
+            $crudService->update(
+                's_order_attributes',
+                'dpn_prev_status_payment',
+                'integer',
+                [
+                    'displayInBackend' => false,
+                    'position' => 310,
+                    'custom' => false,
+                    'translatable' => false,
+                    'defaultValue' => 0,
+                ],
+                null,
+                false,
+                0
+            );
 
             $this->updateMetadataCacheAndModels();
         }

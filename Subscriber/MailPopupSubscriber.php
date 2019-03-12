@@ -90,6 +90,7 @@ class MailPopupSubscriber implements SubscriberInterface
             return;
         }
 
+        /** @var \Enlight_View_Default $view */
         $view = $controller->View();
         $data = $view->getAssign('data');
 
@@ -109,7 +110,9 @@ class MailPopupSubscriber implements SubscriberInterface
      */
     protected function isHideMailPopup($orderId, $orderStatusId, $paymentStatusId)
     {
-        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('DpnCronStatusEmail');
+        $config = $this->container
+            ->get('shopware.plugin.cached_config_reader')
+            ->getByPluginName('DpnCronStatusEmail');
 
         $selectedPaymentStatusIds = $config['dpnPaymentStatus'];
         $selectedOrderStatusIds = $config['dpnOrderStatus'];

@@ -45,26 +45,39 @@ class CronJobSubscriber implements SubscriberInterface
      */
     public function onProcessStatusEmailsCronJob(\Shopware_Components_Cron_CronJob $job)
     {
-        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('DpnCronStatusEmail');
-        $logger = $this->container->get('pluginlogger');
+        $logger = $this->container
+            ->get('pluginlogger');
+
+        $config = $this->container
+            ->get('shopware.plugin.cached_config_reader')
+            ->getByPluginName('DpnCronStatusEmail');
 
         $selectedOrderStatusIds = $config['dpnOrderStatus'];
+        $selectedPaymentStatusIds = $config['dpnPaymentStatus'];
+
         $ordersWithChangedOrderStatus = $this->getUpdatedOrders(
             'dpn_prev_status_order',
-            'status',
+            'status'
+        );
+
+        $count = $this->updateStatus(
+            'dpn_prev_status_order',
+            $ordersWithChangedOrderStatus,
             $selectedOrderStatusIds
         );
-        $count = $this->sendMailAndUpdateStatus('dpn_prev_status_order', $ordersWithChangedOrderStatus);
 
         $logger->info(sprintf('Order status updated on %d orders.', $count));
 
-        $selectedPaymentStatusIds = $config['dpnPaymentStatus'];
         $ordersWithChangedPaymentStatus = $this->getUpdatedOrders(
             'dpn_prev_status_payment',
-            'cleared',
+            'cleared'
+        );
+
+        $count = $this->updateStatus(
+            'dpn_prev_status_payment',
+            $ordersWithChangedPaymentStatus,
             $selectedPaymentStatusIds
         );
-        $count = $this->sendMailAndUpdateStatus('dpn_prev_status_payment', $ordersWithChangedPaymentStatus);
 
         $logger->info(sprintf('Payment status updated on %d orders.', $count));
 
@@ -74,27 +87,21 @@ class CronJobSubscriber implements SubscriberInterface
     /**
      * @param string $fieldPreviousStatus
      * @param string $fieldCurrentStatus
-     * @param array $selectedStatusIds
      * @return array
      */
-    protected function getUpdatedOrders($fieldPreviousStatus, $fieldCurrentStatus, array $selectedStatusIds)
+    protected function getUpdatedOrders($fieldPreviousStatus, $fieldCurrentStatus)
     {
         /** @var Connection $connection */
-        $connection = $this->container->get('dbal_connection');
+        $connection = $this->container
+            ->get('dbal_connection');
 
         $qb = $connection->createQueryBuilder();
         return $qb
-            ->select('o.id', 'o.' . $fieldCurrentStatus . ' as status ')
+            ->select('o.id as id', 'o.' . $fieldCurrentStatus . ' as status ')
             ->from('s_order', 'o')
             ->innerJoin('o', 's_order_attributes', 'a', 'o.id = a.orderID')
             ->where(
-                $qb->expr()->andX(
-                    $qb->expr()->in('o.' . $fieldCurrentStatus, $selectedStatusIds),
-                    $qb->expr()->orX(
-                        $qb->expr()->isNull('a.' . $fieldPreviousStatus),
-                        $qb->expr()->neq('a.' . $fieldPreviousStatus, 'o.' . $fieldCurrentStatus)
-                    )
-                )
+                $qb->expr()->neq('a.' . $fieldPreviousStatus, 'o.' . $fieldCurrentStatus)
             )
             ->execute()
             ->fetchAll();
@@ -103,37 +110,56 @@ class CronJobSubscriber implements SubscriberInterface
     /**
      * @param $field
      * @param array $updatedOrders
+     * @param array $selectedStatusIds
      * @return int
      */
-    protected function sendMailAndUpdateStatus($field, array $updatedOrders)
+    protected function updateStatus($field, array $updatedOrders, array $selectedStatusIds)
     {
         /** @var Connection $connection */
-        $connection = $this->container->get('dbal_connection');
+        $connection = $this->container
+            ->get('dbal_connection');
 
         $count = 0;
 
         foreach ($updatedOrders as $order) {
-            $mail = Shopware()->Modules()->Order()->createStatusMail($order['id'], $order['status']);
-            if ($mail === null) {
-                $message = $this->container
-                    ->get('snippets')
-                    ->getNamespace('backend/dpn_cron_status_email/translations')
-                    ->get('auto_email_missing_template');
-                $this->container->get('pluginlogger')
-                    ->error(sprintf($message, $order['status']));
-            } else {
-                Shopware()->Modules()->Order()->sendStatusMail($mail);
-                $qb = $connection->createQueryBuilder();
-                $qb
-                    ->update('s_order_attributes')
-                    ->set($field, $order['status'])
-                    ->where($qb->expr()->eq('orderID', $order['id']))
-                    ->execute();
+            $qb = $connection->createQueryBuilder();
+            $qb
+                ->update('s_order_attributes')
+                ->set($field, $order['status'])
+                ->where($qb->expr()->eq('orderID', $order['id']))
+                ->execute();
 
-                $count++;
+            if (in_array($order['status'], $selectedStatusIds, true)) {
+                $this->sendMail($order['id'], $order['status']);
             }
+
+            $count++;
         }
 
         return $count;
+    }
+
+    /**
+     * @param int $orderId
+     * @param int $statusId
+     */
+    protected function sendMail($orderId, $statusId)
+    {
+        /** @var \sOrder $module */
+        $module = Shopware()->Modules()->Order();
+
+        $mail = $module->createStatusMail($orderId, $statusId);
+
+        if ($mail !== null) {
+            $module->sendStatusMail($mail);
+        } else {
+            $message = $this->container
+                ->get('snippets')
+                ->getNamespace('backend/dpn_cron_status_email/translations')
+                ->get('auto_email_missing_template');
+            $this->container
+                ->get('pluginlogger')
+                ->error(sprintf($message, $statusId));
+        }
     }
 }
