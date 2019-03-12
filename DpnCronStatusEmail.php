@@ -57,6 +57,28 @@ class DpnCronStatusEmail extends Plugin
                 false,
                 0
             );
+            $crudService->update(
+                's_order_attributes',
+                'dpn_history_status_order',
+                'string',
+                [
+                    'displayInBackend' => false,
+                    'position' => 320,
+                    'custom' => false,
+                    'translatable' => false,
+                ]
+            );
+            $crudService->update(
+                's_order_attributes',
+                'dpn_history_status_payment',
+                'string',
+                [
+                    'displayInBackend' => false,
+                    'position' => 330,
+                    'custom' => false,
+                    'translatable' => false,
+                ]
+            );
 
             $this->updateMetadataCacheAndModels();
         }
@@ -75,6 +97,8 @@ class DpnCronStatusEmail extends Plugin
         try {
             $crudService->delete('s_order_attributes', 'dpn_prev_status_order');
             $crudService->delete('s_order_attributes', 'dpn_prev_status_payment');
+            $crudService->delete('s_order_attributes', 'dpn_history_status_order');
+            $crudService->delete('s_order_attributes', 'dpn_history_status_payment');
             $this->updateMetadataCacheAndModels();
         }
         catch (\Exception $e) {

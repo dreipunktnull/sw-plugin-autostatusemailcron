@@ -57,11 +57,13 @@ class CronJobSubscriber implements SubscriberInterface
 
         $ordersWithChangedOrderStatus = $this->getUpdatedOrders(
             'dpn_prev_status_order',
-            'status'
+            'status',
+            'dpn_history_status_order'
         );
 
         $count = $this->updateStatus(
             'dpn_prev_status_order',
+            'dpn_history_status_order',
             $ordersWithChangedOrderStatus,
             $selectedOrderStatusIds
         );
@@ -70,11 +72,13 @@ class CronJobSubscriber implements SubscriberInterface
 
         $ordersWithChangedPaymentStatus = $this->getUpdatedOrders(
             'dpn_prev_status_payment',
-            'cleared'
+            'cleared',
+            'dpn_history_status_payment'
         );
 
         $count = $this->updateStatus(
             'dpn_prev_status_payment',
+            'dpn_history_status_payment',
             $ordersWithChangedPaymentStatus,
             $selectedPaymentStatusIds
         );
@@ -87,9 +91,10 @@ class CronJobSubscriber implements SubscriberInterface
     /**
      * @param string $fieldPreviousStatus
      * @param string $fieldCurrentStatus
+     * @param string $fieldHistory
      * @return array
      */
-    protected function getUpdatedOrders($fieldPreviousStatus, $fieldCurrentStatus)
+    protected function getUpdatedOrders($fieldPreviousStatus, $fieldCurrentStatus, $fieldHistory)
     {
         /** @var Connection $connection */
         $connection = $this->container
@@ -97,7 +102,7 @@ class CronJobSubscriber implements SubscriberInterface
 
         $qb = $connection->createQueryBuilder();
         return $qb
-            ->select('o.id as id', 'o.' . $fieldCurrentStatus . ' as status ')
+            ->select('o.id as id', 'o.' . $fieldCurrentStatus . ' as status', 'a.' . $fieldHistory . ' as history')
             ->from('s_order', 'o')
             ->innerJoin('o', 's_order_attributes', 'a', 'o.id = a.orderID')
             ->where(
@@ -108,12 +113,13 @@ class CronJobSubscriber implements SubscriberInterface
     }
 
     /**
-     * @param $field
+     * @param string $fieldStatus
+     * @param string $fieldHistory
      * @param array $updatedOrders
      * @param array $selectedStatusIds
      * @return int
      */
-    protected function updateStatus($field, array $updatedOrders, array $selectedStatusIds)
+    protected function updateStatus($fieldStatus, $fieldHistory, array $updatedOrders, array $selectedStatusIds)
     {
         /** @var Connection $connection */
         $connection = $this->container
@@ -122,14 +128,23 @@ class CronJobSubscriber implements SubscriberInterface
         $count = 0;
 
         foreach ($updatedOrders as $order) {
+            $historyData = unserialize($order['history']);
+            $history = is_array($historyData) ? $historyData : [];
+            $newStatusInHistory = in_array($order['status'], $history, false);
+            $newStatusToNotify = in_array($order['status'], $selectedStatusIds, false);
+            if (!$newStatusInHistory) {
+                $history[] = $order['status'];
+            }
+            $historyData = serialize($history);
             $qb = $connection->createQueryBuilder();
             $qb
                 ->update('s_order_attributes')
-                ->set($field, $order['status'])
+                ->set($fieldStatus, $order['status'])
+                ->set($fieldHistory, $qb->createNamedParameter($historyData))
                 ->where($qb->expr()->eq('orderID', $order['id']))
                 ->execute();
 
-            if (in_array($order['status'], $selectedStatusIds, false)) {
+            if ($newStatusToNotify) {
                 $this->sendMail($order['id'], $order['status']);
             }
 
