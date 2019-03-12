@@ -29,6 +29,14 @@
                 <multiSelect>true</multiSelect>
             </options>
         </element>
+        <element type="boolean">
+            <name>dpnSendOneTimePerStatus</name>
+            <label>Send one time</label>
+            <label lang="de">Einmaliger Versand</label>
+            <value>false</value>
+            <description>Send status emails only one time per status and status change</description>
+            <description lang="de">E-Mails nur einmal je Status bei Änderung versenden</description>
+        </element>
     </elements>
 
 </config>

@@ -4,8 +4,18 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="dpn_cron_status_email.service.mail" class="DpnCronStatusEmail\Service\MailService">
+            <argument type="service" id="pluginlogger"/>
+            <argument type="service" id="snippets"/>
+        </service>
+        <service id="dpn_cron_status_email.service.order_status" class="DpnCronStatusEmail\Service\OrderStatusService">
+            <argument type="service" id="dpn_cron_status_email.service.mail"/>
+            <argument type="service" id="shopware.plugin.cached_config_reader"/>
+            <argument type="service" id="dbal_connection"/>
+            <argument type="service" id="pluginlogger"/>
+        </service>
         <service id="dpn_cron_status_email.subscriber.cronjob" class="DpnCronStatusEmail\Subscriber\CronJobSubscriber">
-            <argument type="service" id="service_container"/>
+            <argument type="service" id="dpn_cron_status_email.service.order_status"/>
             <tag name="shopware.event_subscriber" />
         </service>
         <service id="dpn_cron_status_email.subscriber.mail_popup" class="DpnCronStatusEmail\Subscriber\MailPopupSubscriber">

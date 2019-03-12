@@ -68,7 +68,10 @@ class MailPopupSubscriber implements SubscriberInterface
         }
 
         /** @var Order $order */
-        $order = Shopware()->Models()->getRepository(Order::class)->find($orderId);
+        $order = $this->container
+            ->get('models')
+            ->getRepository(Order::class)
+            ->find($orderId);
 
         static::$orders[$orderId] = [
             'orderStatusBefore' => $order->getOrderStatus()->getId(),

@@ -52,6 +52,7 @@ class ExtendOrderSubscriber implements SubscriberInterface
         if ($controller->Request()->getActionName() === 'load') {
             $view->extendsTemplate('backend/dpn_cron_status_email/order/controller/list.js');
             $view->extendsTemplate('backend/dpn_cron_status_email/order/model/mail.js');
+            $view->extendsTemplate('backend/dpn_cron_status_email/order/view/batch/form.js');
         }
     }
 

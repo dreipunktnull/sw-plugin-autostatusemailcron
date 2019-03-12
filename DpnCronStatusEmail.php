@@ -10,8 +10,7 @@ namespace DpnCronStatusEmail;
  * All rights reserved
  */
 
-use Doctrine\Common\Cache\Cache;
-use Shopware\Bundle\AttributeBundle\Service\CrudService;
+use DpnCronStatusEmail\Setup\Installer;
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\ActivateContext;
 use Shopware\Components\Plugin\Context\DeactivateContext;
@@ -22,68 +21,9 @@ class DpnCronStatusEmail extends Plugin
 {
     public function install(InstallContext $context)
     {
-        /** @var CrudService $service */
-        $crudService = $this->container
-            ->get('shopware_attribute.crud_service');
-
-        try {
-            $crudService->update(
-                's_order_attributes',
-                'dpn_prev_status_order',
-                'integer',
-                [
-                    'displayInBackend' => false,
-                    'position' => 300,
-                    'custom' => false,
-                    'translatable' => false,
-                    'defaultValue' => 0,
-                ],
-                null,
-                false,
-                0
-            );
-            $crudService->update(
-                's_order_attributes',
-                'dpn_prev_status_payment',
-                'integer',
-                [
-                    'displayInBackend' => false,
-                    'position' => 310,
-                    'custom' => false,
-                    'translatable' => false,
-                    'defaultValue' => 0,
-                ],
-                null,
-                false,
-                0
-            );
-            $crudService->update(
-                's_order_attributes',
-                'dpn_history_status_order',
-                'string',
-                [
-                    'displayInBackend' => false,
-                    'position' => 320,
-                    'custom' => false,
-                    'translatable' => false,
-                ]
-            );
-            $crudService->update(
-                's_order_attributes',
-                'dpn_history_status_payment',
-                'string',
-                [
-                    'displayInBackend' => false,
-                    'position' => 330,
-                    'custom' => false,
-                    'translatable' => false,
-                ]
-            );
-
-            $this->updateMetadataCacheAndModels();
-        }
-        catch (\Exception $e) {
-        }
+        $installer = $this->getInstaller();
+        $installer->installAttributes();
+        $installer->updateCurrentOrderData();
     }
 
     /**
@@ -91,18 +31,8 @@ class DpnCronStatusEmail extends Plugin
      */
     public function uninstall(UninstallContext $context)
     {
-        /** @var CrudService $crudService */
-        $crudService = $this->container->get('shopware_attribute.crud_service');
-
-        try {
-            $crudService->delete('s_order_attributes', 'dpn_prev_status_order');
-            $crudService->delete('s_order_attributes', 'dpn_prev_status_payment');
-            $crudService->delete('s_order_attributes', 'dpn_history_status_order');
-            $crudService->delete('s_order_attributes', 'dpn_history_status_payment');
-            $this->updateMetadataCacheAndModels();
-        }
-        catch (\Exception $e) {
-        }
+        $installer = $this->getInstaller();
+        $installer->uninstallAttributes();
 
         $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
@@ -123,12 +53,17 @@ class DpnCronStatusEmail extends Plugin
         $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
 
-    protected function updateMetadataCacheAndModels()
+    /**
+     * @return Installer
+     */
+    protected function getInstaller()
     {
-        /** @var Cache $metaDataCache */
-        $metaDataCache = Shopware()->Models()->getConfiguration()->getMetadataCacheImpl();
-        $metaDataCache->deleteAll();
-        Shopware()->Models()->generateAttributeModels(['s_order_attributes']);
+        $crudService = $this->container
+            ->get('shopware_attribute.crud_service');
+        $connection = $this->container
+            ->get('dbal_connection');
+
+        return new Installer($connection, $crudService);
     }
 }
 
