@@ -129,7 +129,7 @@ class CronJobSubscriber implements SubscriberInterface
                 ->where($qb->expr()->eq('orderID', $order['id']))
                 ->execute();
 
-            if (in_array($order['status'], $selectedStatusIds, true)) {
+            if (in_array($order['status'], $selectedStatusIds, false)) {
                 $this->sendMail($order['id'], $order['status']);
             }
 
