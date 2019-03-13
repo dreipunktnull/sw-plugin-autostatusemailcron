@@ -5,6 +5,7 @@
     <label lang="de">Automatische Status E-Mails per Cronjob</label>
     <version>1.0.0</version>
     <copyright>(c) 3.0</copyright>
+    <license>proprietary</license>
     <link>https://dreipunktnull.com</link>
     <author>Björn Fromme, 3.0</author>
     <compatibility minVersion="5.5.0" />
