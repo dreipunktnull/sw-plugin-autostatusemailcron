@@ -21,9 +21,7 @@ class DpnCronStatusEmail extends Plugin
 {
     public function install(InstallContext $context)
     {
-        $installer = $this->getInstaller();
-        $installer->installAttributes();
-        $installer->updateCurrentOrderData();
+        $this->getInstaller()->installAttributes();
     }
 
     /**
@@ -31,8 +29,7 @@ class DpnCronStatusEmail extends Plugin
      */
     public function uninstall(UninstallContext $context)
     {
-        $installer = $this->getInstaller();
-        $installer->uninstallAttributes();
+        $this->getInstaller()->uninstallAttributes();
 
         $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
@@ -42,6 +39,7 @@ class DpnCronStatusEmail extends Plugin
      */
     public function activate(ActivateContext $context)
     {
+        $this->getInstaller()->updateCurrentOrderData();
         $context->scheduleClearCache(InstallContext::CACHE_LIST_DEFAULT);
     }
 
