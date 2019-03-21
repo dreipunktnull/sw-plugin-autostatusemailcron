@@ -58,8 +58,8 @@ class OrderStatusService
     {
         $config = $this->configReader->getByPluginName('DpnCronStatusEmail');
 
-        $selectedOrderStatusIds = $config['dpnOrderStatus'];
-        $selectedPaymentStatusIds = $config['dpnPaymentStatus'];
+        $selectedOrderStatusIds = $config['dpnOrderStatus'] ?: [];
+        $selectedPaymentStatusIds = $config['dpnPaymentStatus'] ?: [];
 
         $ordersWithChangedOrderStatus = $this->getUpdatedOrders(
             'dpn_prev_status_order',
