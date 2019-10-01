@@ -17,6 +17,10 @@
         <changes>Avoids an exception caused by missing config</changes>
         <changes lang="de">Vermeidet eine Exception bei fehlender Konfiguration</changes>
     </changelog>
+    <changelog version="1.0.2">
+        <changes>Considers subshop configuration</changes>
+        <changes lang="de">Berücksichtigt die Konfiguration von Subshops</changes>
+    </changelog>
     <description>
         <![CDATA[
         <b>Automatic status emails (Cron version)<b><br>

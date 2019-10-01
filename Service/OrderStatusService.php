@@ -13,6 +13,7 @@ namespace DpnCronStatusEmail\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Components\Logger;
 use Shopware\Components\Plugin\CachedConfigReader;
+use Shopware\Models\Shop\Shop;
 
 class OrderStatusService
 {
@@ -56,7 +57,7 @@ class OrderStatusService
 
     public function process()
     {
-        $config = $this->configReader->getByPluginName('DpnCronStatusEmail');
+        $config = $this->getConfig();
 
         $selectedOrderStatusIds = $config['dpnOrderStatus'] ?: [];
         $selectedPaymentStatusIds = $config['dpnPaymentStatus'] ?: [];
@@ -122,7 +123,7 @@ class OrderStatusService
      */
     protected function updateStatus($fieldStatus, $fieldHistory, array $updatedOrders, array $selectedStatusIds)
     {
-        $config = $this->configReader->getByPluginName('DpnCronStatusEmail');
+        $config = $this->getConfig();
 
         $sendOneTimePerStatus = $config['dpnSendOneTimePerStatus'];
 
@@ -155,5 +156,15 @@ class OrderStatusService
         }
 
         return $count;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getConfig()
+    {
+        $shop = Shopware()->Models()->getRepository(Shop::class)->getActiveDefault();
+
+        return $this->configReader->getByPluginName('DpnCronStatusEmail', $shop);
     }
 }
