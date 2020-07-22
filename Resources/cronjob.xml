@@ -3,7 +3,7 @@
           xsi:noNamespaceSchemaLocation="../../../../engine/Shopware/Components/Plugin/schema/cronjob.xsd">
 
     <cronjob>
-        <name>Order/payment tatus emails</name>
+        <name>Order/payment status emails</name>
         <action>Shopware_CronJob_DpnCronJobProcessStatusEmails</action>
         <active>true</active>
         <interval>900</interval>

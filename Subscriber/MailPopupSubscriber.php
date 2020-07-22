@@ -113,9 +113,7 @@ class MailPopupSubscriber implements SubscriberInterface
      */
     protected function isHideMailPopup($orderId, $orderStatusId, $paymentStatusId)
     {
-        $config = $this->container
-            ->get('shopware.plugin.cached_config_reader')
-            ->getByPluginName('DpnCronStatusEmail');
+        $config = $this->container->get('dpn_cron_status_email.service.config')->getConfig();
 
         $selectedPaymentStatusIds = $config['dpnPaymentStatus'];
         $selectedOrderStatusIds = $config['dpnOrderStatus'];

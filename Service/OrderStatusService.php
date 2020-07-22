@@ -12,20 +12,18 @@ namespace DpnCronStatusEmail\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Components\Logger;
-use Shopware\Components\Plugin\CachedConfigReader;
-use Shopware\Models\Shop\Shop;
 
 class OrderStatusService
 {
     /**
+     * @var ConfigService
+     */
+    protected $configService;
+
+    /**
      * @var MailService
      */
     protected $mailService;
-
-    /**
-     * @var CachedConfigReader
-     */
-    protected $configReader;
 
     /**
      * @var Connection
@@ -38,18 +36,18 @@ class OrderStatusService
     protected $logger;
 
     /**
+     * @param ConfigService $configService
      * @param MailService $mailService
-     * @param CachedConfigReader $configReader
      * @param Connection $connection
      * @param Logger $logger
      */
     public function __construct(
+        ConfigService $configService,
         MailService $mailService,
-        CachedConfigReader $configReader,
         Connection $connection,
         Logger $logger
     ) {
-        $this->configReader = $configReader;
+        $this->configService = $configService;
         $this->connection = $connection;
         $this->logger = $logger;
         $this->mailService = $mailService;
@@ -57,15 +55,19 @@ class OrderStatusService
 
     public function process()
     {
-        $config = $this->getConfig();
+        $config = $this->configService->getConfig();
 
         $selectedOrderStatusIds = $config['dpnOrderStatus'] ?: [];
         $selectedPaymentStatusIds = $config['dpnPaymentStatus'] ?: [];
+        $maxEmailsPerRun = $config['dpnMaxEmailsPerRun'] ?: 0;
+        $emailsDateFrom = $config['dpnEmailsDateFrom'];
 
         $ordersWithChangedOrderStatus = $this->getUpdatedOrders(
             'dpn_prev_status_order',
             'status',
-            'dpn_history_status_order'
+            'dpn_history_status_order',
+            $maxEmailsPerRun,
+            $emailsDateFrom
         );
 
         $count = $this->updateStatus(
@@ -80,7 +82,9 @@ class OrderStatusService
         $ordersWithChangedPaymentStatus = $this->getUpdatedOrders(
             'dpn_prev_status_payment',
             'cleared',
-            'dpn_history_status_payment'
+            'dpn_history_status_payment',
+            $maxEmailsPerRun,
+            $emailsDateFrom
         );
 
         $count = $this->updateStatus(
@@ -97,19 +101,33 @@ class OrderStatusService
      * @param string $fieldPreviousStatus
      * @param string $fieldCurrentStatus
      * @param string $fieldHistory
+     * @param int $maxCount
+     * @param null $minDate
      * @return array
      */
-    protected function getUpdatedOrders($fieldPreviousStatus, $fieldCurrentStatus, $fieldHistory)
+    protected function getUpdatedOrders($fieldPreviousStatus, $fieldCurrentStatus, $fieldHistory, $maxCount = 0, $minDate = null)
     {
         $qb = $this->connection->createQueryBuilder();
 
-        return $qb
+        $qb
             ->select('o.id as id', 'o.' . $fieldCurrentStatus . ' as status', 'a.' . $fieldHistory . ' as history')
             ->from('s_order', 'o')
             ->innerJoin('o', 's_order_attributes', 'a', 'o.id = a.orderID')
             ->where(
                 $qb->expr()->neq('a.' . $fieldPreviousStatus, 'o.' . $fieldCurrentStatus)
-            )
+            );
+
+        if ($maxCount > 0) {
+            $qb->setMaxResults($maxCount);
+        }
+
+        if (false === empty($minDate)) {
+            $qb->andWhere(
+                $qb->expr()->gt('o.ordertime', $qb->createNamedParameter($minDate))
+            );
+        }
+
+        return $qb
             ->execute()
             ->fetchAll();
     }
@@ -123,7 +141,7 @@ class OrderStatusService
      */
     protected function updateStatus($fieldStatus, $fieldHistory, array $updatedOrders, array $selectedStatusIds)
     {
-        $config = $this->getConfig();
+        $config = $this->configService->getConfig();
 
         $sendOneTimePerStatus = $config['dpnSendOneTimePerStatus'];
 
@@ -156,15 +174,5 @@ class OrderStatusService
         }
 
         return $count;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getConfig()
-    {
-        $shop = Shopware()->Models()->getRepository(Shop::class)->getActiveDefault();
-
-        return $this->configReader->getByPluginName('DpnCronStatusEmail', $shop);
     }
 }

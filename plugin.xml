@@ -3,7 +3,7 @@
         xsi:noNamespaceSchemaLocation="../../../engine/Shopware/Components/Plugin/schema/plugin.xsd">
     <label>Automatic status emails via cronjob</label>
     <label lang="de">Automatische Status E-Mails per Cronjob</label>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
     <copyright>(c) 3.0</copyright>
     <license>proprietary</license>
     <link>https://dreipunktnull.com</link>
@@ -20,6 +20,10 @@
     <changelog version="1.0.2">
         <changes>Considers subshop configuration</changes>
         <changes lang="de">Berücksichtigt die Konfiguration von Subshops</changes>
+    </changelog>
+    <changelog version="1.1.0">
+        <changes>Adds cronjob configuration options</changes>
+        <changes lang="de">Fügt weitere Konfigurationsmöglichkeiten des Cronjobs hinzu</changes>
     </changelog>
     <description>
         <![CDATA[

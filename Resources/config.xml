@@ -37,6 +37,21 @@
             <description>Send status emails only one time per status and status change</description>
             <description lang="de">E-Mails nur einmal je Status bei Änderung versenden</description>
         </element>
+        <element type="number">
+            <name>dpnMaxEmailsPerRun</name>
+            <label>Maximum emails count</label>
+            <label lang="de">Maximale Anzahl an E-Mails</label>
+            <value>10</value>
+            <description>Limit number of email to be sent for each cron run to this value</description>
+            <description lang="de">Die maximale Anzahl an E-Mails, die in jedem Cron Durchlauf versendet werden</description>
+        </element>
+        <element type="date">
+            <name>dpnEmailsDateFrom</name>
+            <label>Starting from</label>
+            <label lang="de">Beginnend ab</label>
+            <description>Send emails for orders placed after this date only</description>
+            <description lang="de">E-Mails nur für Bestellungen versenden, die nach diesem Datum aufgegeben wurden</description>
+        </element>
     </elements>
 
 </config>
