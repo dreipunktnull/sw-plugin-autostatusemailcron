@@ -3,7 +3,7 @@
         xsi:noNamespaceSchemaLocation="../../../engine/Shopware/Components/Plugin/schema/plugin.xsd">
     <label>Automatic status emails via cronjob</label>
     <label lang="de">Automatische Status E-Mails per Cronjob</label>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <copyright>(c) 3.0</copyright>
     <license>proprietary</license>
     <link>https://dreipunktnull.com</link>
@@ -25,9 +25,13 @@
         <changes>Adds cronjob configuration options</changes>
         <changes lang="de">Fügt weitere Konfigurationsmöglichkeiten des Cronjobs hinzu</changes>
     </changelog>
+    <changelog version="1.1.1">
+        <changes>Adds compatibility to Shopware 5.7</changes>
+        <changes lang="de">Kompatibilität mit Shopware 5.7</changes>
+    </changelog>
     <description>
         <![CDATA[
-        <b>Automatic status emails (Cron version)<b><br>
+        <b>Automatic status emails (Cron version)</b><br>
         <p>Using this plugin notification emails for order- and payment status changes via backend or the API can be
         sent automatically. The status to send emails for are configurable. Manual sending of status emails is
         deactivated for selected status to avoid duplicates. <b>This plugin detects changes in status written directly
@@ -41,7 +45,7 @@
     </description>
     <description lang="de">
         <![CDATA[
-        <b>Automatische Status E-Mails (Cron Version)<b><br>
+        <b>Automatische Status E-Mails (Cron Version)</b><br>
         <p>Mit Hilfe dieses Plugins lässt sich der Versand von E-Mail Benachrichtigungen bei Änderungen am Bestell- oder
         Zahlungsstatus automatisieren. Der Versand erfolgt dabei sowohl <b>bei manueller Änderung über das Shopware
         Backend als auch bei Änderungen über die API wie z. B. bei Nutzung einer Warenwirtschaft/CRM Software.</b></p>
