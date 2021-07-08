@@ -4,7 +4,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="dpn_cron_status_email.service.config" class="DpnCronStatusEmail\Service\ConfigService">
+        <service id="dpn_cron_status_email.service.config" class="DpnCronStatusEmail\Service\ConfigService" public="true">
             <argument type="service" id="shopware.plugin.config_reader"/>
         </service>
         <service id="dpn_cron_status_email.service.mail" class="DpnCronStatusEmail\Service\MailService">
