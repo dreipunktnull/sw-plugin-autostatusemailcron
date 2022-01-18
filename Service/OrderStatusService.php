@@ -150,8 +150,8 @@ class OrderStatusService
         foreach ($updatedOrders as $order) {
             $historyData = unserialize($order['history']);
             $history = is_array($historyData) ? $historyData : [];
-            $newStatusInHistory = in_array($order['status'], $history, false);
-            $newStatusDoNotify = in_array($order['status'], $selectedStatusIds, false);
+            $newStatusInHistory = in_array($order['status'], (array)$history, false);
+            $newStatusDoNotify = in_array($order['status'], (array)$selectedStatusIds, false);
 
             if (!$newStatusInHistory) {
                 $history[] = $order['status'];

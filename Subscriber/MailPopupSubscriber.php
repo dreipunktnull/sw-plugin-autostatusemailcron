@@ -118,8 +118,8 @@ class MailPopupSubscriber implements SubscriberInterface
         $selectedPaymentStatusIds = $config['dpnPaymentStatus'];
         $selectedOrderStatusIds = $config['dpnOrderStatus'];
 
-        $isSelectedOrderStatusId = in_array($orderStatusId, $selectedOrderStatusIds, true);
-        $isSelectedPaymentStatusId = in_array($paymentStatusId, $selectedPaymentStatusIds, true);
+        $isSelectedOrderStatusId = in_array($orderStatusId, (array)$selectedOrderStatusIds, true);
+        $isSelectedPaymentStatusId = in_array($paymentStatusId, (array)$selectedPaymentStatusIds, true);
 
         $isOrderStatusChanged = static::$orders[$orderId]['orderStatusBefore'] !== $orderStatusId;
         $isPaymentStatusChanged = static::$orders[$orderId]['paymentStatusBefore'] !== $paymentStatusId;
